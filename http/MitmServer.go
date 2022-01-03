@@ -1,12 +1,12 @@
 package http
 
 import (
-	"allproxy/api"
-	"allproxy/ca"
-	"allproxy/config"
-	"allproxy/dns"
-	"allproxy/global"
 	"bytes"
+	"goproxy/api"
+	"goproxy/ca"
+	"goproxy/config"
+	"goproxy/dns"
+	"goproxy/global"
 	"io"
 	"log"
 	"net"
@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 )
 
-const allproxySeqHeader = "allproxy-seq" // add "allproxy-seq" to request header
+const goproxySeqHeader = "goproxy-seq" // add "goproxy-seq" to request header
 
 type MitmServerInf interface {
 	Listen()
@@ -56,7 +56,7 @@ func (s *MitmServer) Listen() {
 	// Set up reverse proxy
 	proxy := &httputil.ReverseProxy{}
 	proxy.Director = func(request *http.Request) {
-		seqNum, _ := strconv.Atoi(request.Header.Get(allproxySeqHeader))
+		seqNum, _ := strconv.Atoi(request.Header.Get(goproxySeqHeader))
 		httpMessage := s.seqToHttpMessageMap[seqNum]
 		request.URL.Scheme = s.scheme
 		host := s.host
@@ -124,13 +124,13 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 			Hostname:      s.host,
 			Port:          s.port,
 			HostReachable: true,
-			Comment:       "Created by AllProxy",
+			Comment:       "Created by goproxy",
 		}
 	}
 
 	if proxyConfig == nil {
 		w.WriteHeader(http.StatusBadGateway)
-		w.Write([]byte("<h1>No AllProxy config is defined for path: " + request.URL.Path + "</h1>"))
+		w.Write([]byte("<h1>No goproxy config is defined for path: " + request.URL.Path + "</h1>"))
 		return
 	}
 
@@ -168,13 +168,13 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		api.NoResponse,
 	)
 	s.seqToHttpMessageMap[globalSeqNum] = httpMessage
-	request.Header.Set(allproxySeqHeader, strconv.Itoa(int(globalSeqNum)))
+	request.Header.Set(goproxySeqHeader, strconv.Itoa(int(globalSeqNum)))
 	s.reverseProxy.ServeHTTP(w, request)
 }
 
 // HTTP Response handler
 func (s *MitmServer) responseHandler(res *http.Response) error {
-	seqNum, _ := strconv.Atoi(res.Request.Header.Get(allproxySeqHeader))
+	seqNum, _ := strconv.Atoi(res.Request.Header.Get(goproxySeqHeader))
 	httpMessage := s.seqToHttpMessageMap[seqNum]
 	delete(s.seqToHttpMessageMap, seqNum)
 	var resBody []byte

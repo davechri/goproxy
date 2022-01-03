@@ -1,14 +1,14 @@
 package http
 
 import (
-	"allproxy/paths"
+	"goproxy/paths"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
 func DashboardAppServer(w http.ResponseWriter, request *http.Request) {
-	if request.URL.Path == "/allproxy" {
+	if request.URL.Path == "/goproxy" {
 		http.Redirect(w, request, "/", http.StatusMovedPermanently)
 	}
 

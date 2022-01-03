@@ -1,7 +1,7 @@
 package api
 
 import (
-	"allproxy/config"
+	"goproxy/config"
 	"net"
 	"os/exec"
 	"strconv"

@@ -1,7 +1,7 @@
 package http
 
 import (
-	"allproxy/config"
+	"goproxy/config"
 	"log"
 	"net"
 	"strings"

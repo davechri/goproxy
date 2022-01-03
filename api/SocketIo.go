@@ -1,10 +1,10 @@
 package api
 
 import (
-	"allproxy/config"
-	"allproxy/paths"
 	"encoding/json"
 	"fmt"
+	"goproxy/config"
+	"goproxy/paths"
 	"log"
 	"net/http"
 	"os"

@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-// Create tunnel from client to AllProxy https server.  The AllProxy https server decrypts and captures
+// Create tunnel from client to goproxy https server.  The goproxy https server decrypts and captures
 // the HTTP messages, and forwards it to the origin server.
 func createPipe(clientConn net.Conn, address string) {
 	log.Printf("Pipe createPipe(%s)\n", address)

@@ -1,10 +1,10 @@
 package http
 
 import (
-	"allproxy/api"
-	"allproxy/config"
-	"allproxy/paths"
 	"bufio"
+	"goproxy/api"
+	"goproxy/config"
+	"goproxy/paths"
 	"log"
 	"net"
 	"net/http"
@@ -18,14 +18,14 @@ import (
 var socketioServer *socketio.Server
 var mitmHttpsServer = &MitmServer{
 	protocol:       config.Https,
-	host:           "allproxy",
+	host:           "goproxy",
 	isForwardProxy: false,
 	isSecure:       true,
 	scheme:         "https",
 } // secure reverse proxy
 var mitmHttpServer = &MitmServer{
 	protocol:       config.Http,
-	host:           "allproxy",
+	host:           "goproxy",
 	isForwardProxy: false,
 	isSecure:       false,
 	scheme:         "http",

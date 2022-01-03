@@ -1,8 +1,8 @@
 package api
 
 import (
-	"allproxy/config"
 	"encoding/json"
+	"goproxy/config"
 	"log"
 	"net/url"
 	"regexp"

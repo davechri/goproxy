@@ -1,10 +1,10 @@
 package http
 
 import (
-	"allproxy/api"
-	"allproxy/config"
-	"allproxy/dns"
 	"encoding/json"
+	"goproxy/api"
+	"goproxy/config"
+	"goproxy/dns"
 	"net/http"
 	"strconv"
 	"strings"

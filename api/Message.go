@@ -1,6 +1,6 @@
 package api
 
-import "allproxy/config"
+import "goproxy/config"
 
 type MessageType int
 type MessageProtocol string

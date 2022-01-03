@@ -1,7 +1,6 @@
 package ca
 
 import (
-	"allproxy/paths"
 	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
@@ -9,6 +8,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"goproxy/paths"
 	"log"
 	"math/big"
 	"os"
@@ -34,8 +34,8 @@ func InitCa() {
 	Ca.template = &x509.Certificate{
 		SerialNumber: randomSerialNumber(),
 		Subject: pkix.Name{
-			CommonName:         "AllProxyCA",
-			Organization:       []string{"AllProxy CA"},
+			CommonName:         "goproxyCA",
+			Organization:       []string{"goproxy CA"},
 			OrganizationalUnit: []string{"CA"},
 			Country:            []string{"Internet"},
 			Province:           []string{"Internet"},
@@ -115,8 +115,8 @@ func NewServerCertKey(host string) (certFile string, keyFile string) {
 		certTemplate := &x509.Certificate{
 			SerialNumber: randomSerialNumber(),
 			Subject: pkix.Name{
-				Organization:       []string{"AllProxy Server Certificate"},
-				OrganizationalUnit: []string{"AllProxy Server Certificate"},
+				Organization:       []string{"goproxy Server Certificate"},
+				OrganizationalUnit: []string{"goproxy Server Certificate"},
 				Country:            []string{"Internet"},
 				Province:           []string{"Internet"},
 				Locality:           []string{"Internet"},
