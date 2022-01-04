@@ -15,12 +15,12 @@ type connResponseWriter struct {
 }
 
 func (w connResponseWriter) Header() http.Header {
-	log.Println("connResponseWriter Header()", w.header)
+	// log.Println("connResponseWriter Header()", w.header)
 	return w.header
 }
 
 func (w connResponseWriter) Write(data []byte) (int, error) {
-	log.Printf("connResponseWriter Write() %d\n", len(data))
+	// log.Printf("connResponseWriter Write() %d\n", len(data))
 	if !*w.headersWritten {
 		w.WriteHeader(http.StatusOK)
 	}
@@ -28,7 +28,7 @@ func (w connResponseWriter) Write(data []byte) (int, error) {
 }
 
 func (w connResponseWriter) WriteHeader(statusCode int) {
-	log.Printf("connResponseWriter WriteHeader(%d) %v", statusCode, w.header)
+	log.Printf("connResponseWriter WriteHeader(%d)", statusCode)
 	w.conn.Write([]byte("HTTP/1.1 " + strconv.Itoa(statusCode) + "\r\n"))
 	w.header.Write(w.conn)
 	w.conn.Write([]byte("\r\n"))

@@ -35,7 +35,7 @@ type MitmServer struct {
 	isSecure            bool
 	scheme              string
 	waitGroup           sync.WaitGroup
-	pipelineSeqNum      int32                // Use atomic.AddUint32()
+	pipelineCount       int32                // Use atomic.AddUint32()
 	seqToHttpMessageMap map[int]*HttpMessage // lookup HttpMessage key=seq num
 	reverseProxy        *httputil.ReverseProxy
 }
@@ -86,18 +86,15 @@ func (s *MitmServer) Listen() {
 }
 
 func (s *MitmServer) Add(delta int) {
-	log.Printf("MitmServer Add(%d) %v\n", delta, s)
 	s.waitGroup.Add(delta)
 }
 
 func (s *MitmServer) Wait() {
-	log.Printf("MitmServer Wait() %v\n", s)
 	s.waitGroup.Wait()
 	log.Printf("MitmServer Wait() done %v\n", s)
 }
 
 func (s *MitmServer) Done() {
-	log.Printf("MitmServer Done() %v\n", s)
 	s.waitGroup.Done()
 }
 
@@ -108,9 +105,9 @@ func (s *MitmServer) Address() string {
 
 // HTTP request handler
 func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
-	pipelineSeqNum := atomic.AddInt32(&s.pipelineSeqNum, 1)
+	pipelineCount := atomic.AddInt32(&s.pipelineCount, 1)
 	globalSeqNum := global.NextSeq()
-	log.Printf("MitmServer captureRequest() seq=%d\n", globalSeqNum)
+	log.Printf("MitmServer ServeHTTP() seq=%d pipeline=%d %s %s\n", globalSeqNum, pipelineCount, s.host, request.URL.Path)
 
 	// Find matching proxy configuration
 	clientHostName := dns.ResolveIp(request.RemoteAddr)
@@ -153,7 +150,7 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	httpMessage := NewHttpMessage(
 		messageProtocol,
 		proxyConfig,
-		pipelineSeqNum,
+		pipelineCount,
 		globalSeqNum,
 		request.RemoteAddr,
 		request.Method,
@@ -175,6 +172,7 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 // HTTP Response handler
 func (s *MitmServer) responseHandler(res *http.Response) error {
 	seqNum, _ := strconv.Atoi(res.Request.Header.Get(goproxySeqHeader))
+	log.Printf("MitmServer responseHandler() seq=%d status=%d\n", seqNum, res.StatusCode)
 	httpMessage := s.seqToHttpMessageMap[seqNum]
 	delete(s.seqToHttpMessageMap, seqNum)
 	var resBody []byte

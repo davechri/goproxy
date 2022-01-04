@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"goproxy/config"
 	"goproxy/paths"
 	"log"
@@ -22,7 +21,7 @@ func Start() *socketio.Server {
 	server := socketio.NewServer(nil)
 
 	server.OnConnect("/", func(s socketio.Conn) error {
-		fmt.Println("SocketIo OnConnect() connected:", s.ID())
+		// log.Println("SocketIo OnConnect() connected:", s.ID())
 		s.SetContext("")
 		proxyConfig := GetConfig()
 		s.Emit("proxy config", proxyConfig) // send config to browser
@@ -30,7 +29,7 @@ func Start() *socketio.Server {
 	})
 
 	server.OnEvent("/", "proxy config", func(s socketio.Conn, proxyConfigs []*config.ProxyConfig) {
-		fmt.Printf("SocketIo OnEvent \"proxy config\"\n%s\n", FmtConfig(proxyConfigs))
+		// log.Printf("SocketIo OnEvent \"proxy config\"\n%s\n", FmtConfig(proxyConfigs))
 		saveConfig(proxyConfigs)
 
 		// Make sure all matching connection based servers are closed.
@@ -54,11 +53,11 @@ func Start() *socketio.Server {
 	})
 
 	server.OnError("/", func(s socketio.Conn, e error) {
-		fmt.Println("SocketIo OnError() meet error:", e)
+		// log.Println("SocketIo OnError() meet error:", e)
 	})
 
 	server.OnDisconnect("/", func(socket socketio.Conn, reason string) {
-		fmt.Println("SocketIo OnDisconnect()", reason)
+		// log.Println("SocketIo OnDisconnect()", reason)
 		closeAnyServersWithSocket(socket.ID())
 		socketIoMapDelete(socket.ID())
 	})

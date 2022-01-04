@@ -100,7 +100,7 @@ func handleRequest(conn net.Conn) {
 			file := filepath.Join(dir, request.URL.Path)
 
 			if request.URL.Path == "/socket.io/" {
-				log.Println("Listen handleRequest() ServeHTTP", request.URL.Path)
+				log.Println("Listen handleRequest() socket.io", request.URL.Host, request.URL.Path)
 				socketioServer.ServeHTTP(responseWriter, request)
 			} else if _, err := os.Stat(file); err == nil {
 				fs := http.FileServer(http.Dir(dir))

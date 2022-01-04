@@ -86,7 +86,7 @@ func FindProxyConfigMatchingURL(
  * @param {*} proxyConfig
  */
 func EmitMessageToBrowser(messageType MessageType, message *Message, inProxyConfig *config.ProxyConfig) {
-	log.Println("SocketIo EmitMessageToBrowser()", socketIoMap)
+	// log.Println("SocketIo EmitMessageToBrowser()", socketIoMap)
 	message.Type = messageType
 	path := ""
 	if inProxyConfig != nil {
@@ -119,13 +119,13 @@ func EmitMessageToBrowser(messageType MessageType, message *Message, inProxyConf
 		}
 		return true
 	})
-	if !emitted {
-		log.Println(message.SequenceNumber, "no browser socket to emit to", message.Url)
-	}
+	// if !emitted {
+	// 	log.Println(message.SequenceNumber, "no browser socket to emit to", message.Url)
+	// }
 }
 
 func emitMessageWithFlowControl(messages []*Message, socketInfo *socketIoInfo, socketId string) {
-	log.Println("SocketIo emitMessageWithFlowControl", socketId)
+	// log.Println("SocketIo emitMessageWithFlowControl", socketId)
 	if socketInfo.remainingWindow == 0 || socketInfo.messagesOut >= maxOut {
 		socketInfo.queuedMessages = append(socketInfo.queuedMessages, messages...)
 	} else {
@@ -138,7 +138,7 @@ func emitMessageWithFlowControl(messages []*Message, socketInfo *socketIoInfo, s
 			if err != nil {
 				log.Panicln(err)
 			}
-			log.Println("SocketIo emitMessageWithFlowControl() messages:")
+			// log.Println("SocketIo emitMessageWithFlowControl() messages:")
 			socketInfo.socket.Emit(
 				"reqResJson",
 				string(messagesBytes),
