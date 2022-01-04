@@ -41,8 +41,9 @@ func Listen(address string) {
 	temp := api.Start()
 	socketioServer = temp
 
-	http.HandleFunc("/", DashboardAppServer)
-	go http.Serve(listener, nil)
+	// This is causing issue with inbound connection handling
+	// http.HandleFunc("/", DashboardAppServer)
+	// go http.Serve(listener, nil)
 
 	// Setup https and http reverse proxy servers
 	mitmHttpsServer.Listen()

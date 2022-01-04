@@ -35,15 +35,15 @@ type MitmServer struct {
 	isSecure            bool
 	scheme              string
 	waitGroup           sync.WaitGroup
-	pipelineCount       int32                // Use atomic.AddUint32()
-	seqToHttpMessageMap map[int]*HttpMessage // lookup HttpMessage key=seq num
+	pipelineCount       int32    // Use atomic.AddUint32()
+	seqToHttpMessageMap sync.Map // lookup HttpMessage key=seq num
 	reverseProxy        *httputil.ReverseProxy
 }
 
 func (s *MitmServer) Listen() {
 	log.Printf("MitmServer Listen() Listen %v\n", s)
 
-	s.seqToHttpMessageMap = make(map[int]*HttpMessage)
+	s.seqToHttpMessageMap = sync.Map{}
 
 	addr := "localhost:0"
 	listener, err := net.Listen("tcp", addr)
@@ -57,11 +57,11 @@ func (s *MitmServer) Listen() {
 	proxy := &httputil.ReverseProxy{}
 	proxy.Director = func(request *http.Request) {
 		seqNum, _ := strconv.Atoi(request.Header.Get(goproxySeqHeader))
-		httpMessage := s.seqToHttpMessageMap[seqNum]
+		httpMessage, _ := s.seqToHttpMessageMap.Load(seqNum)
 		request.URL.Scheme = s.scheme
 		host := s.host
 		if !s.isForwardProxy {
-			host = httpMessage.ProxyConfig.Hostname
+			host = httpMessage.(*HttpMessage).ProxyConfig.Hostname
 		}
 		request.URL.Host = host
 		request.Header.Set("host", host)
@@ -164,7 +164,7 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		nil,
 		api.NoResponse,
 	)
-	s.seqToHttpMessageMap[globalSeqNum] = httpMessage
+	s.seqToHttpMessageMap.Store(globalSeqNum, httpMessage)
 	request.Header.Set(goproxySeqHeader, strconv.Itoa(int(globalSeqNum)))
 	s.reverseProxy.ServeHTTP(w, request)
 }
@@ -173,8 +173,7 @@ func (s *MitmServer) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 func (s *MitmServer) responseHandler(res *http.Response) error {
 	seqNum, _ := strconv.Atoi(res.Request.Header.Get(goproxySeqHeader))
 	log.Printf("MitmServer responseHandler() seq=%d status=%d\n", seqNum, res.StatusCode)
-	httpMessage := s.seqToHttpMessageMap[seqNum]
-	delete(s.seqToHttpMessageMap, seqNum)
+	httpMessage, _ := s.seqToHttpMessageMap.LoadAndDelete(seqNum)
 	var resBody []byte
 	if res.Body != nil {
 		var err error
@@ -184,7 +183,7 @@ func (s *MitmServer) responseHandler(res *http.Response) error {
 		}
 		res.Body = io.NopCloser(bytes.NewBuffer(resBody))
 	}
-	httpMessage.EmitMessageToBrowser(
+	httpMessage.(*HttpMessage).EmitMessageToBrowser(
 		res.StatusCode,
 		res.Header,
 		resBody,

@@ -93,7 +93,6 @@ func EmitMessageToBrowser(messageType MessageType, message *Message, inProxyConf
 		path = inProxyConfig.Path
 	}
 	var currentSocketId string
-	emitted := false
 	socketIoMap.Range(func(key interface{}, value interface{}) bool {
 		for _, proxyConfig := range value.(*socketIoInfo).configs {
 			if inProxyConfig == nil ||
@@ -110,7 +109,6 @@ func EmitMessageToBrowser(messageType MessageType, message *Message, inProxyConf
 				message.ProxyConfig = proxyConfig
 				if value.(*socketIoInfo).socket != nil {
 					emitMessageWithFlowControl([]*Message{message}, value.(*socketIoInfo), currentSocketId)
-					emitted = true
 				}
 				if inProxyConfig == nil {
 					break
@@ -119,9 +117,6 @@ func EmitMessageToBrowser(messageType MessageType, message *Message, inProxyConf
 		}
 		return true
 	})
-	// if !emitted {
-	// 	log.Println(message.SequenceNumber, "no browser socket to emit to", message.Url)
-	// }
 }
 
 func emitMessageWithFlowControl(messages []*Message, socketInfo *socketIoInfo, socketId string) {
